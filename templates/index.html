@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Market Analyzer</title>
+    <link rel="stylesheet" href="/static/css/terminal.css?v=4">
+</head>
+
+<body>
+    <div id="terminal-container">
+        <!-- HEADER ROW -->
+        <header id="top-bar">
+            <div class="header-item header-nav">1(GO) &gt; EQUITY</div>
+            <span class="header-sep" aria-hidden="true">|</span>
+            <div class="header-item clock" id="live-clock" title="System time"><span class="header-label">TIME</span> <span id="live-clock-time">12:34:56</span> SYS</div>
+            <span class="header-sep" aria-hidden="true">|</span>
+            <div class="header-item" id="theme-toggle" title="Click to switch theme" style="cursor:pointer; text-decoration: underline;">THEME: DARK</div>
+            <span class="header-sep" aria-hidden="true">|</span>
+            <div class="header-item header-nav">F2(CMDTY) F3(FX) F4(NEWS)</div>
+        </header>
+
+        <!-- GLOBAL NEWS TICKER -->
+        <div id="news-ticker-container">
+            <div id="news-ticker-label">TOP NEWS</div>
+            <div id="news-ticker-track">
+                <div id="news-ticker-content">Loading Top Headlines...</div>
+            </div>
+        </div>
+
+        <!-- COMMAND LINE -->
+        <div id="command-line">
+            <span class="prompt">&gt;</span>
+            <input type="text" id="cmd-input" placeholder="TICKER <EQUITY> GO" autocomplete="off" spellcheck="false"
+                value="AAPL">
+            <button id="cmd-btn">RUN ↵</button>
+        </div>
+
+        <div id="grid-layout">
+            <!-- PANEL 1: MARKET OVERVIEW (Top Left) -->
+            <section class="panel" id="panel-market">
+                <div class="panel-header">1) WORLD EQUITIES <span class="blink">_</span></div>
+                <div class="panel-content" id="market-overview-data">
+                    <table class="term-table">
+                        <thead>
+                            <tr>
+                                <th>INDEX</th>
+                                <th>VALUE</th>
+                                <th>CHG</th>
+                                <th>%CHG</th>
+                                <th>TREND</th>
+                            </tr>
+                        </thead>
+                        <tbody id="market-table-body">
+                            <tr>
+                                <td colspan="5" class="loading">Loading Market Data...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- PANEL 2: EQUITIES DETAIL & FUNDAMENTALS (Center) -->
+            <section class="panel" id="panel-equity" style="grid-row: span 2;">
+                <div class="panel-header">2) EQUITY DES &amp; FUNDAMENTALS</div>
+                <div class="panel-content equity-scroll" id="equity-quote-data">
+                    <div id="quote-header">
+                        <h2 id="q-symbol" class="amber">---</h2>
+                        <span id="q-name">---</span>
+                        <div id="quote-meta"><span id="q-sector"></span> <span id="q-industry"></span> <span id="q-type"></span></div>
+                    </div>
+
+                    <div class="equity-section">QUOTE</div>
+                    <div class="quote-grid">
+                        <div class="q-cell">LAST: <span id="q-price" class="value">---</span></div>
+                        <div class="q-cell">CHG: <span id="q-change" class="value">---</span></div>
+                        <div class="q-cell">%CHG: <span id="q-changepct" class="value">---</span></div>
+                    </div>
+                    <div class="quote-grid">
+                        <div class="q-cell">OPEN: <span id="q-open" class="value">---</span></div>
+                        <div class="q-cell">DAY H: <span id="q-dayhigh" class="value">---</span></div>
+                        <div class="q-cell">DAY L: <span id="q-daylow" class="value">---</span></div>
+                    </div>
+                    <div class="quote-grid">
+                        <div class="q-cell">BID: <span id="q-bid" class="value">---</span></div>
+                        <div class="q-cell">ASK: <span id="q-ask" class="value">---</span></div>
+                        <div class="q-cell">VOL: <span id="q-volume" class="value">---</span></div>
+                    </div>
+                    <div class="quote-grid">
+                        <div class="q-cell">AVG VOL: <span id="q-avgvol" class="value">---</span></div>
+                        <div class="q-cell">MKT CAP: <span id="q-mktcap" class="value">---</span></div>
+                        <div class="q-cell">ENT VAL: <span id="q-entval" class="value">---</span></div>
+                    </div>
+                    <div class="quote-grid">
+                        <div class="q-cell">52W RNG: <span id="q-range" class="value">---</span></div>
+                        <div class="q-cell">50D AVG: <span id="q-50d" class="value">---</span></div>
+                        <div class="q-cell">200D AVG: <span id="q-200d" class="value">---</span></div>
+                    </div>
+
+                    <div class="equity-section">VALUATION</div>
+                    <div class="quote-grid">
+                        <div class="q-cell">P/E: <span id="q-pe" class="value">---</span></div>
+                        <div class="q-cell">FWD P/E: <span id="f-fpe" class="value">---</span></div>
+                        <div class="q-cell">PEG: <span id="f-peg" class="value">---</span></div>
+                    </div>
+                    <div class="quote-grid">
+                        <div class="q-cell">P/B: <span id="f-pb" class="value">---</span></div>
+                        <div class="q-cell">EV/REV: <span id="f-evrev" class="value">---</span></div>
+                        <div class="q-cell">EV/EBITDA: <span id="f-evebitda" class="value">---</span></div>
+                    </div>
+                    <div class="quote-grid">
+                        <div class="q-cell">BOOK/SH: <span id="f-book" class="value">---</span></div>
+                        <div class="q-cell">TGT PRICE: <span id="f-target" class="value">---</span></div>
+                        <div class="q-cell">REC: <span id="f-rec" class="value">---</span></div>
+                    </div>
+
+                    <div class="equity-section">EARNINGS &amp; REVENUE</div>
+                    <div class="quote-grid">
+                        <div class="q-cell">TTM EPS: <span id="f-eps" class="value">---</span></div>
+                        <div class="q-cell">FWD EPS: <span id="f-fwdeps" class="value">---</span></div>
+                        <div class="q-cell">REV/SH: <span id="f-revsh" class="value">---</span></div>
+                    </div>
+                    <div class="quote-grid">
+                        <div class="q-cell">TOTAL REV: <span id="f-revenue" class="value">---</span></div>
+                        <div class="q-cell">PROF MGN: <span id="f-profitmgn" class="value">---</span></div>
+                        <div class="q-cell">OP MGN: <span id="f-opmgn" class="value">---</span></div>
+                    </div>
+
+                    <div class="equity-section">RETURNS &amp; BALANCE SHEET</div>
+                    <div class="quote-grid">
+                        <div class="q-cell">ROE: <span id="f-roe" class="value">---</span></div>
+                        <div class="q-cell">ROA: <span id="f-roa" class="value">---</span></div>
+                        <div class="q-cell">DEBT/EQ: <span id="f-debteq" class="value">---</span></div>
+                    </div>
+                    <div class="quote-grid">
+                        <div class="q-cell">CURR RAT: <span id="f-currentr" class="value">---</span></div>
+                        <div class="q-cell">QUICK RAT: <span id="f-quickr" class="value">---</span></div>
+                        <div class="q-cell">BETA: <span id="f-beta" class="value">---</span></div>
+                    </div>
+
+                    <div class="equity-section">CASH FLOW &amp; DIVIDEND</div>
+                    <div class="quote-grid">
+                        <div class="q-cell">FCF: <span id="f-fcf" class="value">---</span></div>
+                        <div class="q-cell">OP CF: <span id="f-opcf" class="value">---</span></div>
+                        <div class="q-cell">DIV YLD: <span id="f-div" class="value">---</span></div>
+                    </div>
+                    <div class="quote-grid">
+                        <div class="q-cell">PAYOUT %: <span id="f-payout" class="value">---</span></div>
+                        <div class="q-cell">—</div>
+                        <div class="q-cell">—</div>
+                    </div>
+
+                    <div class="equity-section">GROWTH</div>
+                    <div class="quote-grid">
+                        <div class="q-cell">EARN GR: <span id="f-earngr" class="value">---</span></div>
+                        <div class="q-cell">REV GR: <span id="f-revgr" class="value">---</span></div>
+                        <div class="q-cell">EQ GR: <span id="f-eqgr" class="value">---</span></div>
+                    </div>
+
+                    <div class="equity-section">ANALYSTS &amp; SHORT</div>
+                    <div class="quote-grid">
+                        <div class="q-cell">ANALYSTS: <span id="f-analysts" class="value">---</span></div>
+                        <div class="q-cell">SHORT %: <span id="f-shortpct" class="value">---</span></div>
+                        <div class="q-cell">SHORT RAT: <span id="f-shortrat" class="value">---</span></div>
+                    </div>
+
+                    <div class="equity-section">ETF / FUND</div>
+                    <div class="quote-grid">
+                        <div class="q-cell">TOT AUM: <span id="f-totalassets" class="value">---</span></div>
+                        <div class="q-cell">YIELD: <span id="f-yield" class="value">---</span></div>
+                        <div class="q-cell">EXP RAT: <span id="f-expense" class="value">---</span></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PANEL 3: NEWS & SENTIMENT (Top Right) -->
+            <section class="panel" id="panel-news">
+                <div class="panel-header">3) TOP NEWS & SENTIMENT</div>
+                <div class="panel-content n-scroll" id="news-data">
+                    <div class="loading">Loading News Feed...</div>
+                </div>
+            </section>
+
+            <!-- PANEL 4: COMMODITIES & FX (Middle Right) -->
+            <section class="panel" id="panel-cmdt">
+                <div class="panel-header">4) CMTY & FX RATES</div>
+                <div class="panel-content">
+                    <table class="term-table">
+                        <thead>
+                            <tr>
+                                <th>ASSET</th>
+                                <th>PRICE</th>
+                                <th>CHG</th>
+                                <th>%CHG</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cmdt-table-body">
+                            <tr>
+                                <td colspan="4" class="loading">Loading Rates...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- PANEL 6: SOCIAL BUZZ (Bottom Left) -->
+            <section class="panel" id="panel-social">
+                <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>6) SOCIAL TRENDS</span>
+                    <div id="social-toggle" class="toggle-container">
+                        <span class="toggle-btn active" data-mode="mentions">[MENTIONS]</span>
+                        <span class="toggle-btn" data-mode="trades">[TRADES]</span>
+                    </div>
+                </div>
+                <div class="panel-content" id="social-data">
+                    <table class="term-table">
+                        <thead>
+                            <tr>
+                                <th>TICKER</th>
+                                <th id="social-metric-header">MENTIONS (24H)</th>
+                                <th>RANK</th>
+                            </tr>
+                        </thead>
+                        <tbody id="social-table-body">
+                            <tr>
+                                <td colspan="3" class="loading">Scraping r/stocks...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- PANEL 7: MOST ACTIVE / HIGH VOLUME (Row 3, Left) -->
+            <section class="panel" id="panel-active">
+                <div class="panel-header">7) MOST ACTIVE (HIGH VOLUME)</div>
+                <div class="panel-content">
+                    <table class="term-table">
+                        <thead>
+                            <tr>
+                                <th>TICKER</th>
+                                <th>PRICE</th>
+                                <th>%CHG</th>
+                                <th>VOLUME</th>
+                            </tr>
+                        </thead>
+                        <tbody id="active-table-body">
+                            <tr>
+                                <td colspan="4" class="loading">Loading Active...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- PANEL 8: PENNY STOCKS (Row 3, Center/Right) -->
+            <section class="panel" id="panel-penny" style="grid-column: span 2;">
+                <div class="panel-header">8) PENNY STOCKS & HIGH VOLATILITY</div>
+                <div class="panel-content" style="columns: 2;">
+                    <table class="term-table">
+                        <thead>
+                            <tr>
+                                <th>TICKER</th>
+                                <th>PRICE</th>
+                                <th>%CHG</th>
+                                <th>VOLUME</th>
+                            </tr>
+                        </thead>
+                        <tbody id="penny-table-body">
+                            <tr>
+                                <td colspan="4" class="loading">Loading Penny Stocks...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+        </div>
+
+        <!-- FOOTER ROW -->
+        <footer id="bottom-bar">
+            <div class="footer-item">SYS OK</div>
+            <div class="footer-item" id="market-status" title="US market (NYSE/NASDAQ) status">—</div>
+            <div class="footer-item">DATA DELAYED 15 MIN</div>
+            <div class="footer-item">Developed by j-d-j123</div>
+        </footer>
+    </div>
+
+    <!-- Application Logic -->
+    <script src="/static/js/app.js"></script>
+</body>
+
+</html>
