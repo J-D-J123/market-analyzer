@@ -10,7 +10,7 @@ import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
 
-app = FastAPI(title="Bloomberg Terminal Clone")
+app = FastAPI(title="Market Analyzer")
 
 def _num(v, decimals=2):
     """Return number rounded or None if invalid."""

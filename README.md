@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-# Bloomberg Terminal Clone
+# Market-Analyzer
 
 A web-based financial dashboard that visually resembles a 2016 Bloomberg Terminal interface.
 It features a dark theme, dense data layout, monospace typography, and yellow/green accent text.
@@ -40,6 +39,3 @@ The backend is powered by Python (FastAPI) and uses `yfinance` to pull live mark
 - **Frontend:** HTML5, CSS Grid (Vanilla CSS), Vanilla JavaScript, Plotly.js for charting.
 
 *Designed for educational purposes using free public data APIs.*
-=======
-# market-analyzer
->>>>>>> origin/main
