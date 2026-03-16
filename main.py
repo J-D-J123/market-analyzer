@@ -5,12 +5,32 @@ from fastapi.responses import JSONResponse
 import yfinance as yf
 from textblob import TextBlob
 import requests
+import os
 import asyncio
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
 
 app = FastAPI(title="Market Analyzer")
+
+# --- API Keys ---
+NEWS_API_KEY     = os.environ.get("NEWS_API_KEY")
+FINNHUB_API_KEY  = os.environ.get("FINNHUB_API_KEY")
+ALPHAVANTAGE_KEY = os.environ.get("ALPHAVANTAGE_KEY")
+
+# --- yfinance session: use curl_cffi to impersonate Chrome at TLS level ---
+# This bypasses Yahoo Finance IP blocking on cloud servers
+try:
+    from curl_cffi import requests as curl_requests
+    yf_session = curl_requests.Session(impersonate="chrome110")
+except ImportError:
+    # Fallback to regular requests with browser headers if curl_cffi not available
+    yf_session = requests.Session()
+    yf_session.headers.update({
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.5",
+    })
 
 def _num(v, decimals=2):
     """Return number rounded or None if invalid."""
@@ -45,7 +65,7 @@ async def get_market_overview():
     # Run synchronously for now, in a real highly scaled app we'd use unblocking threads
     for ticker_str in tickers:
         try:
-            ticker = yf.Ticker(ticker_str)
+            ticker = yf.Ticker(ticker_str, session=yf_session)
             hist = ticker.history(period="2d", interval="1m")
             if len(hist) > 0:
                 last_price = hist['Close'].iloc[-1]
@@ -92,7 +112,7 @@ def _get_attr(obj, *keys, default=None):
 @app.get("/api/quote/{ticker_symbol}")
 async def get_quote(ticker_symbol: str):
     try:
-        ticker = yf.Ticker(ticker_symbol)
+        ticker = yf.Ticker(ticker_symbol, session=yf_session)
         info = ticker.info
         fast_info = ticker.fast_info
 
@@ -205,7 +225,7 @@ async def get_commodities_fx():
     
     for t_str in tickers:
         try:
-            t = yf.Ticker(t_str)
+            t = yf.Ticker(t_str, session=yf_session)
             hist = t.history(period="1d")
             if not hist.empty:
                 last = hist['Close'].iloc[-1]
@@ -227,7 +247,7 @@ async def get_commodities_fx():
 @app.get("/api/news")
 async def get_news(ticker: str = "SPY"):
     try:
-        t = yf.Ticker(ticker)
+        t = yf.Ticker(ticker, session=yf_session)
         news = t.news
         results = []
         for item in news[:10]: # Limit to 10
@@ -277,7 +297,7 @@ async def get_top_news():
 @app.get("/api/fundamentals/{ticker_symbol}")
 async def get_fundamentals(ticker_symbol: str):
     try:
-        ticker = yf.Ticker(ticker_symbol)
+        ticker = yf.Ticker(ticker_symbol, session=yf_session)
         
         # Get historical data for the chart's candles (optional for fundamentals-only)
         hist = ticker.history(period="1y")
@@ -487,7 +507,7 @@ async def get_most_active():
     ]
     try:
         # Bulk download using yfinance is significantly faster than looping t.fast_info
-        data = yf.download(tickers=" ".join(high_volume_candidates), period="2d", group_by="ticker", threads=True, progress=False)
+        data = yf.download(tickers=" ".join(high_volume_candidates), period="2d", group_by="ticker", threads=True, progress=False, session=yf_session)
         active_data = []
         for symbol in high_volume_candidates:
             try:
@@ -529,7 +549,7 @@ async def get_penny_stocks():
     ]
     try:
         # Bulk download using yfinance is significantly faster
-        data = yf.download(tickers=" ".join(penny_candidates), period="2d", group_by="ticker", threads=True, progress=False)
+        data = yf.download(tickers=" ".join(penny_candidates), period="2d", group_by="ticker", threads=True, progress=False, session=yf_session)
         penny_data = []
         for symbol in penny_candidates:
             try:
