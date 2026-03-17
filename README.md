@@ -46,3 +46,4 @@ The backend is powered by Python (FastAPI) and uses `yfinance` to pull live mark
 - **Frontend:** HTML5, CSS Grid (Vanilla CSS), Vanilla JavaScript, Plotly.js for charting.
 
 *Designed for educational purposes using free public data APIs.*
+*All developed by Gemini 3 Pro High, and Gemini 3 flash*
