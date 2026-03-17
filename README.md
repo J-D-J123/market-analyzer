@@ -23,6 +23,13 @@ The backend is powered by Python (FastAPI) and uses `yfinance` to pull live mark
    # Mac/Linux:
    source venv/bin/activate
    ```
+3. **Configure API Keys:**
+   Create a `.env` file in the root directory and add your free API keys for richer functionality:
+   ```env
+   NEWS_API_KEY=your_key_here          # Optional: Better breaking news
+   FINNHUB_API_KEY=your_key_here       # Optional: Rich company data
+   ALPHAVANTAGE_KEY=your_key_here      # Optional: Top gainers/losers fallback
+   ```
 3. **Install Dependencies:**
    ```bash
    pip install -r requirements.txt

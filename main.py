@@ -9,6 +9,9 @@ import os
 import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
+from dotenv import load_dotenv
+
+load_dotenv()  # Load variables from .env file into os.environ
 
 app = FastAPI(title="Market Analyzer")
 
@@ -17,9 +20,9 @@ NEWS_API_KEY     = os.environ.get("NEWS_API_KEY")
 FINNHUB_API_KEY  = os.environ.get("FINNHUB_API_KEY")
 ALPHAVANTAGE_KEY = os.environ.get("ALPHAVANTAGE_KEY")
 
-# --- Two sessions:
-# yf_session   -> curl_cffi Chrome impersonation for yf.Ticker() calls (bypasses Yahoo IP block)
-# dl_session   -> plain requests session for yf.download() (curl_cffi incompatible with download)
+# --- yfinance configuration ---
+# yfinance >= 0.2.59 automatically uses curl_cffi if installed.
+# We keep these for fallback or non-yfinance requests.
 try:
     from curl_cffi import requests as curl_requests
     yf_session = curl_requests.Session(impersonate="chrome110")
@@ -88,7 +91,7 @@ async def get_market_overview():
     data = {}
     for ticker_str in tickers:
         try:
-            ticker = yf.Ticker(ticker_str, session=yf_session)
+            ticker = yf.Ticker(ticker_str)
             hist   = ticker.history(period="2d", interval="1m")
             if len(hist) > 0:
                 last_price = hist['Close'].iloc[-1]
@@ -118,7 +121,7 @@ async def get_market_overview():
 @app.get("/api/quote/{ticker_symbol}")
 async def get_quote(ticker_symbol: str):
     try:
-        ticker    = yf.Ticker(ticker_symbol, session=yf_session)
+        ticker    = yf.Ticker(ticker_symbol)
         info      = ticker.info
         fast_info = ticker.fast_info
         hist      = ticker.history(period="5d")
@@ -215,7 +218,7 @@ async def get_commodities_fx():
     data = {}
     for t_str in tickers:
         try:
-            t    = yf.Ticker(t_str, session=yf_session)
+            t    = yf.Ticker(t_str)
             hist = t.history(period="1d")
             if not hist.empty:
                 last   = hist['Close'].iloc[-1]
@@ -295,7 +298,7 @@ async def get_news(ticker: str = "SPY"):
 
     # 3. yfinance fallback
     try:
-        t    = yf.Ticker(ticker, session=yf_session)
+        t    = yf.Ticker(ticker)
         news = t.news or []
         for item in news[:10]:
             content   = item.get('content', item)
@@ -322,7 +325,7 @@ async def get_top_news():
 @app.get("/api/fundamentals/{ticker_symbol}")
 async def get_fundamentals(ticker_symbol: str):
     try:
-        ticker = yf.Ticker(ticker_symbol, session=yf_session)
+        ticker = yf.Ticker(ticker_symbol)
         hist   = ticker.history(period="1y")
         if hist.empty:
             candles = {"dates": [], "open": [], "high": [], "low": [], "close": [], "volume": []}
@@ -526,8 +529,7 @@ async def get_most_active():
     ]
     try:
         data = yf.download(tickers=" ".join(candidates), period="2d",
-                           group_by="ticker", threads=True, progress=False,
-                           session=dl_session)
+                           group_by="ticker", threads=True, progress=False)
         active_data = []
         for symbol in candidates:
             try:
@@ -566,8 +568,7 @@ async def get_penny_stocks():
     ]
     try:
         data = yf.download(tickers=" ".join(penny_candidates), period="2d",
-                           group_by="ticker", threads=True, progress=False,
-                           session=dl_session)
+                           group_by="ticker", threads=True, progress=False)
         penny_data = []
         for symbol in penny_candidates:
             try:
