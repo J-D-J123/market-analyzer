@@ -10,6 +10,7 @@ import pandas as pd
 import numpy as np
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
+from ml_model import StockPredictor
 
 load_dotenv()  # Load variables from .env file into os.environ
 
@@ -205,6 +206,19 @@ async def get_quote(ticker_symbol: str):
                 "prices":     [round(p, 2) for p in hist_1y['Close'].tolist()],
             }
         return JSONResponse(content=quote_data)
+    except Exception as e:
+        return JSONResponse(content={"error": str(e)}, status_code=500)
+
+# ---------------------------------------------------------------------------
+# ML Prediction
+# ---------------------------------------------------------------------------
+
+@app.get("/api/predict/{ticker_symbol}")
+async def get_prediction(ticker_symbol: str):
+    try:
+        predictor = StockPredictor(ticker_symbol)
+        prediction = predictor.predict()
+        return JSONResponse(content=prediction)
     except Exception as e:
         return JSONResponse(content={"error": str(e)}, status_code=500)
 
@@ -568,7 +582,7 @@ async def get_penny_stocks():
     ]
     try:
         data = yf.download(tickers=" ".join(penny_candidates), period="2d",
-                           group_by="ticker", threads=True, progress=False)
+                           group_by="ticker", threads=False, progress=False)
         penny_data = []
         for symbol in penny_candidates:
             try:
@@ -591,4 +605,5 @@ async def get_penny_stocks():
         penny_data.sort(key=lambda x: x["volume"], reverse=True)
         return JSONResponse(content={"penny": penny_data[:40]})
     except Exception as e:
-        return JSONResponse(content={"error": str(e)}, status_code=500)
+        print(f"Error fetching penny stocks: {e}")
+        return JSONResponse(content={"penny": []})

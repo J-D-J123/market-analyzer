@@ -181,19 +181,20 @@ body {
     height: 20px;
 }
 
-/* NEWS TICKER */
-#news-ticker-container {
+/* TICKER COMPONENTS */
+#news-ticker-container, #active-ticker-container {
     display: flex;
     background: var(--primary);
     color: white;
     height: 32px;
+    flex-shrink: 0;
     align-items: center;
     overflow: hidden;
     font-size: 0.75rem;
     font-weight: 600;
 }
 
-#news-ticker-label {
+#news-ticker-label, #active-ticker-label {
     padding: 0 1.5rem;
     background: rgba(0, 0, 0, 0.2);
     height: 100%;
@@ -202,20 +203,20 @@ body {
     font-family: var(--font-heading);
 }
 
-#news-ticker-track {
+#news-ticker-track, #active-ticker-track {
     flex-grow: 1;
     overflow: hidden;
     position: relative;
     white-space: nowrap;
 }
 
-#news-ticker-content {
+#news-ticker-content, #active-ticker-content {
     display: inline-block;
     padding-left: 100%;
     animation: ticker-scroll 180s linear infinite;
 }
 
-#news-ticker-content:hover {
+#news-ticker-content:hover, #active-ticker-content:hover {
     animation-play-state: paused;
 }
 
@@ -264,6 +265,13 @@ body {
     border-radius: 1rem;
     padding: 1.25rem;
     box-shadow: var(--card-shadow);
+}
+
+/* --- ML Screener Modal --- */
+.ml-winner-card:hover {
+    border-color: var(--primary) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.2);
 }
 
 .card-header {
@@ -503,4 +511,300 @@ body {
     0% { opacity: 0.3; }
     50% { opacity: 0.8; }
     100% { opacity: 0.3; }
+}
+
+/* MAPS */
+.map-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-top: 1.5rem;
+}
+
+.map-container {
+    padding: 0;
+    height: 250px;
+    border-radius: 0.5rem;
+    overflow: hidden;
+    position: relative;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+#weather-map, #flight-map {
+    width: 100%;
+    height: 100%;
+    z-index: 1; /* Keep below headers */
+    background: #000;
+}
+
+/* Custom Marker Styling */
+.airplane-icon {
+    display: block;
+    width: 20px;
+    height: 20px;
+}
+
+.airplane-icon svg {
+    width: 100%;
+    height: 100%;
+    fill: #facc15; /* Yellow for visibility on dark maps */
+    stroke: #000;
+    stroke-width: 1px;
+    filter: drop-shadow(0px 0px 2px rgba(0,0,0,0.8));
+    transition: transform 0.5s linear;
+}
+
+.leaflet-popup-content-wrapper {
+    background: var(--panel-bg);
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+    backdrop-filter: var(--glass-blur);
+    border-radius: 8px;
+}
+
+.leaflet-popup-tip {
+    background: var(--panel-bg);
+    border: 1px solid var(--border-color);
+}
+
+.weather-timestamp {
+    position: absolute;
+    bottom: 20px;
+    left: 10px;
+    background: rgba(0,0,0,0.6);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+/* ============================================================
+   RESPONSIVE / MOBILE STYLES
+   ============================================================ */
+
+/* --- Tablet (≤ 1024px): Collapse to 2 columns --- */
+@media (max-width: 1024px) {
+    #main-content {
+        grid-template-columns: 1fr 1.5fr;
+        grid-template-rows: auto;
+    }
+    #news-column {
+        grid-column: 1 / -1;  /* news spans full width on tablet */
+    }
+    #command-line {
+        width: 280px;
+    }
+    .logo {
+        font-size: 1.2rem;
+    }
+}
+
+/* --- Phone (≤ 768px): Full mobile layout --- */
+@media (max-width: 768px) {
+
+    /* Allow body to scroll on mobile */
+    body {
+        height: auto;
+        overflow: auto;
+        overflow-x: hidden;
+    }
+
+    #app-container {
+        height: auto;
+        min-height: 100vh;
+    }
+
+    /* ── Header: stack logo + search + actions ── */
+    #main-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.6rem;
+        padding: 0.75rem 1rem;
+    }
+
+    .header-left {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .logo {
+        font-size: 1.25rem;
+    }
+
+    .clock {
+        display: none; /* Hide clock on mobile to save space */
+    }
+
+    #command-line {
+        width: 100%;
+        order: 3;
+    }
+
+    .header-right {
+        justify-content: flex-end;
+        gap: 0.5rem;
+        order: 2;
+    }
+
+    /* Hide ML Recommendations text label, keep icon only */
+    #btn-ml-screener span.ml-btn-label {
+        display: none;
+    }
+
+    #btn-ml-screener {
+        padding: 0.4rem 0.6rem;
+        font-size: 0;
+    }
+
+    #btn-ml-screener svg {
+        width: 16px;
+        height: 16px;
+        margin: 0;
+    }
+
+    /* ── Breaking / Most Active ticker bars ── */
+    #news-ticker-label, #active-ticker-label {
+        width: 80px;
+        min-width: 80px;
+        font-size: 0.6rem;
+        padding: 0 0.5rem;
+    }
+
+    /* ── Main 3-column → single scrollable column ── */
+    #main-content {
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        padding: 1rem;
+        overflow: visible;
+        /* Reserve space for bottom nav bar */
+        padding-bottom: 70px;
+    }
+
+    #market-data-column,
+    #equity-detail-column,
+    #news-column {
+        overflow: visible;
+        padding-right: 0;
+    }
+
+    /* Each section is shown/hidden by the bottom nav */
+    #market-data-column,
+    #equity-detail-column,
+    #news-column {
+        display: none;
+    }
+
+    /* The active section is shown */
+    #market-data-column.mobile-active,
+    #equity-detail-column.mobile-active,
+    #news-column.mobile-active {
+        display: flex;
+    }
+
+    /* ── Equity card: stack header price info ── */
+    .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .price-summary {
+        text-align: left;
+    }
+
+    .main-price {
+        font-size: 2rem;
+    }
+
+    /* ── Data grids: 2 cols on phone instead of 3 ── */
+    .data-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        margin: 1rem 0;
+    }
+
+    /* ── Tables: horizontal scroll ── */
+    .data-table {
+        font-size: 0.8rem;
+        display: block;
+        overflow-x: auto;
+        white-space: nowrap;
+    }
+
+    /* ── Footer: hide on mobile ── */
+    #main-footer {
+        display: none;
+    }
+
+    /* ── ML Screener Modal: full screen on phone ── */
+    .ml-screener-modal .modal-content {
+        width: 96vw !important;
+        height: 90vh !important;
+        overflow-y: auto;
+        margin: 5vh auto 0;
+    }
+
+    .prediction-wrapper {
+        grid-template-columns: 1fr !important;
+    }
+
+    /* ── Bottom Nav Bar ── */
+    #mobile-nav {
+        display: flex !important;
+    }
+}
+
+/* Bottom navigation bar — hidden on desktop, shown on mobile */
+#mobile-nav {
+    display: none;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 200;
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-blur);
+    border-top: 1px solid var(--border-color);
+    height: 60px;
+    align-items: stretch;
+    justify-content: space-around;
+}
+
+.mobile-nav-btn {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    font-size: 0.6rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: color 0.2s;
+    padding: 0;
+}
+
+.mobile-nav-btn svg {
+    width: 20px;
+    height: 20px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 2;
+}
+
+.mobile-nav-btn.active {
+    color: var(--primary);
+}
+
+.mobile-nav-btn.active svg {
+    stroke: var(--primary);
 }

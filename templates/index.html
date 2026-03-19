@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Market Analyzer</title>
-    <link rel="stylesheet" href="/static/css/terminal.css?v=4">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <link rel="stylesheet" href="/static/css/terminal.css?v=5">
 </head>
 
 <body>
@@ -25,6 +26,10 @@
             </div>
 
             <div class="header-right">
+                <button id="btn-ml-screener" class="glass-panel" style="font-size: 0.75rem; padding: 0.4rem 0.75rem; color: white; background: var(--primary); cursor: pointer; margin-right: 1rem; border: none; border-radius: 4px; font-weight: 600; display: flex; align-items: center; gap: 0.5rem;">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                    <span class="ml-btn-label">ML Recommendations</span>
+                </button>
                 <div id="market-status" class="market-badge">—</div>
                 <button id="theme-toggle" class="icon-btn" title="Toggle Theme">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
@@ -34,9 +39,20 @@
 
         <!-- NEWS TICKER -->
         <div id="news-ticker-container">
-            <div id="news-ticker-label">BREAKING</div>
+            <div id="news-ticker-label" style="width: 140px; min-width: 140px; justify-content: center; flex-shrink: 0; box-sizing: border-box;">BREAKING</div>
             <div id="news-ticker-track">
                 <div id="news-ticker-content">Loading Top Headlines...</div>
+            </div>
+        </div>
+
+        <!-- ACTIVE STOCKS TICKER -->
+        <div id="active-ticker-container" style="background: var(--nav-bg); color: var(--text-main); border-bottom: 1px solid var(--border-color);">
+            <div id="active-ticker-label" style="width: 140px; min-width: 140px; justify-content: center; flex-shrink: 0; box-sizing: border-box; background: var(--primary); color: white; letter-spacing: 0.05em; white-space: nowrap; position: relative;">
+                <div style="position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.2);"></div>
+                <span style="position: relative; z-index: 1;">MOST ACTIVE</span>
+            </div>
+            <div id="active-ticker-track">
+                <div id="active-ticker-content" style="animation-duration: 400s;">Loading Active Stocks...</div>
             </div>
         </div>
 
@@ -160,6 +176,27 @@
                             <div class="data-item"><label>Beta</label><span id="f-beta">---</span></div>
                         </div>
 
+                        <div class="section-divider" style="color: var(--primary); border-bottom: 1px solid var(--primary);">ML Technical Forecasts</div>
+                        <div class="prediction-wrapper" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                            <div class="prediction-box">
+                                <div style="font-size: 0.65rem; color: var(--text-dim); margin-bottom: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 2px;">30-DAY OUTLOOK <span id="ml-30d-acc" style="font-weight: 400; opacity: 0.7;"></span></div>
+                                <div class="data-grid" style="margin: 0; gap: 0.5rem; grid-template-columns: repeat(3, 1fr);">
+                                    <div class="data-item"><label>Price</label><span id="ml-price-30" style="font-size: 0.9rem;">---</span></div>
+                                    <div class="data-item"><label>Conf.</label><span id="ml-conf-30" style="font-size: 0.9rem;">---</span></div>
+                                    <div class="data-item"><label>View</label><span id="ml-outlook-30" style="font-size: 0.9rem;">---</span></div>
+                                </div>
+                            </div>
+                            <div class="prediction-box" style="border-left: 1px solid rgba(255,255,255,0.05); padding-left: 1rem;">
+                                <div style="font-size: 0.65rem; color: var(--text-dim); margin-bottom: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 2px;">1-YEAR OUTLOOK <span id="ml-1y-acc" style="font-weight: 400; opacity: 0.7;"></span></div>
+                                <div class="data-grid" style="margin: 0; gap: 0.5rem; grid-template-columns: repeat(3, 1fr);">
+                                    <div class="data-item"><label>Price</label><span id="ml-price-1y" style="font-size: 0.9rem;">---</span></div>
+                                    <div class="data-item"><label>Conf.</label><span id="ml-conf-1y" style="font-size: 0.9rem;">---</span></div>
+                                    <div class="data-item"><label>View</label><span id="ml-outlook-1y" style="font-size: 0.9rem;">---</span></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="ml-updated" style="font-size: 0.6rem; opacity: 0.5; text-align: right; margin-top: 0.25rem;">---</div>
+
                         <div class="section-divider">Revenue & Income</div>
                         <div class="data-grid">
                             <div class="data-item"><label>Revenue</label><span id="f-revenue">---</span></div>
@@ -205,6 +242,26 @@
                         <div class="loading">Loading latest updates...</div>
                     </div>
                 </section>
+
+                <div class="map-grid">
+                    <section class="card" id="panel-weather">
+                        <div class="card-header">
+                            <h2>Global Weather Radar</h2>
+                        </div>
+                        <div class="card-content map-container">
+                            <div id="weather-map"></div>
+                        </div>
+                    </section>
+
+                    <section class="card" id="panel-flights">
+                        <div class="card-header">
+                            <h2>Live Comm. Flights</h2>
+                        </div>
+                        <div class="card-content map-container">
+                            <div id="flight-map"></div>
+                        </div>
+                    </section>
+                </div>
             </aside>
         </main>
 
@@ -216,9 +273,77 @@
             </div>
             <div class="footer-credits">Developed by J-D-J123</div>
         </footer>
+
+        <!-- Mobile Bottom Navigation (shown only on phones via CSS) -->
+        <nav id="mobile-nav">
+            <button class="mobile-nav-btn active" data-section="market-data-column">
+                <svg viewBox="0 0 24 24"><rect x="2" y="3" width="7" height="18" rx="1"></rect><rect x="15" y="3" width="7" height="11" rx="1"></rect><rect x="15" y="17" width="7" height="4" rx="1"></rect></svg>
+                Market
+            </button>
+            <button class="mobile-nav-btn" data-section="equity-detail-column">
+                <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+                Stocks
+            </button>
+            <button class="mobile-nav-btn" data-section="news-column">
+                <svg viewBox="0 0 24 24"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"></path><path d="M18 14h-8"></path><path d="M15 18h-5"></path><path d="M10 6h8v4h-8V6Z"></path></svg>
+                News
+            </button>
+        </nav>
+    </div>
+
+    <!-- ML Screener Modal -->
+    <div id="ml-screener-modal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(4px);">
+        <div class="modal-content glass-panel" style="background: var(--bg-color); max-width: 500px; width: 90%; padding: 2rem; border-radius: 12px; box-shadow: 0 20px 40px rgba(0,0,0,0.5);">
+            <div class="modal-header" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1.5rem;">
+                <h2 style="margin: 0; font-size: 1.25rem; display: flex; align-items: center; gap: 0.5rem; color: var(--text-main);">
+                    <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="var(--primary)" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                    ML Screener
+                </h2>
+                <button id="close-ml-modal" class="icon-btn" style="background: none; border: none; color: var(--text-dim); cursor: pointer; padding: 0;">
+                    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            
+            <div id="ml-screener-status" style="text-align: center; margin-bottom: 1.5rem; color: var(--text-dim); font-size: 0.95rem;">
+                Click "Start Scan" to run the ML model against today's Most Active stocks to find the best projected returns.
+            </div>
+
+            <div id="ml-progress-bar-container" style="display: none; height: 6px; background: var(--nav-bg); border-radius: 3px; overflow: hidden; margin-bottom: 1.5rem;">
+                <div id="ml-progress-bar" style="height: 100%; width: 0%; background: var(--primary); transition: width 0.3s ease;"></div>
+            </div>
+
+            <div id="ml-results-container" style="display: none; gap: 1rem; flex-direction: column;">
+                <div class="ml-winner-card clickable-ticker" id="ml-winner-30d" data-ticker="" style="background: var(--nav-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.25rem; cursor: pointer; transition: transform 0.2s, border-color 0.2s;">
+                    <div style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; margin-bottom: 0.5rem; letter-spacing: 0.05em;">Top Short-Term Buy (30 Days)</div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span class="winner-ticker" style="font-size: 1.75rem; font-weight: 700; color: var(--text-main);">---</span>
+                        <div style="text-align: right;">
+                            <div class="winner-return pos" style="font-size: 1.25rem; font-weight: 600;">+0.00%</div>
+                            <div class="winner-conf" style="font-size: 0.85rem; color: var(--text-dim); margin-top: 0.25rem;">Conf: --%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="ml-winner-card clickable-ticker" id="ml-winner-1y" data-ticker="" style="background: var(--nav-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 1.25rem; cursor: pointer; transition: transform 0.2s, border-color 0.2s;">
+                    <div style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; margin-bottom: 0.5rem; letter-spacing: 0.05em;">Top Long-Term Buy (1 Year)</div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span class="winner-ticker" style="font-size: 1.75rem; font-weight: 700; color: var(--text-main);">---</span>
+                        <div style="text-align: right;">
+                            <div class="winner-return pos" style="font-size: 1.25rem; font-weight: 600;">+0.00%</div>
+                            <div class="winner-conf" style="font-size: 0.85rem; color: var(--text-dim); margin-top: 0.25rem;">Conf: --%</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button id="start-ml-scan" class="glass-panel" style="width: 100%; margin-top: 1rem; padding: 0.85rem; background: var(--primary); color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 1rem; transition: background 0.2s;">
+                Start Scan
+            </button>
+        </div>
     </div>
 
     <!-- Application Logic -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
     <script src="/static/js/app.js"></script>
 </body>
 
